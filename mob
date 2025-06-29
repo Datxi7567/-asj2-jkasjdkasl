@@ -1,0 +1,35 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+
+-- B1: Tween xuống Y = -100
+local dropTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+local dropTween = TweenService:Create(root, dropTweenInfo, {
+    Position = Vector3.new(root.Position.X, -100, root.Position.Z)
+})
+
+-- B2: Sau khi xuống xong, neo lại và bắt đầu tween X <-> Z liên tục
+dropTween.Completed:Connect(function()
+    root.Anchored = true
+
+    -- Vị trí tween lần lượt
+    local pos1 = Vector3.new(300, -100, root.Position.Z)
+    local pos2 = Vector3.new(400, -100, 700)
+
+    -- Lặp tween giữa pos1 và pos2
+    local toggle = true
+    while true do
+        local targetPos = toggle and pos1 or pos2
+        local tween = TweenService:Create(root, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+            Position = targetPos
+        })
+        tween:Play()
+        tween.Completed:Wait()
+        toggle = not toggle
+    end
+end)
+
+dropTween:Play()
