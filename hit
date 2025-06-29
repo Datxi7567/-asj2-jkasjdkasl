@@ -1,0 +1,44 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Enemies = workspace:WaitForChild("Enemies")
+
+local WeaponName = "SW-2_LastHope"
+local MeleeRemote = ReplicatedStorage.Remotes.MeleeHitTarget
+local TrailRemote = ReplicatedStorage.Remotes.TrailEffect
+
+-- Trang bị vũ khí 1 lần
+pcall(function()
+    ReplicatedStorage.Remotes:WaitForChild("LN"):WaitForChild("ToolEquip"):FireServer(WeaponName, "Sub")
+end)
+
+-- Lấy Handle
+local ToolHandle = Character:WaitForChild(WeaponName):WaitForChild("ToolModel"):WaitForChild("Handle")
+
+-- Tấn công toàn bộ Enemies nhiều lần mỗi vòng
+spawn(function()
+    while task.wait(0.1) do
+        for _, enemy in ipairs(Enemies:GetChildren()) do
+            local humanoid = enemy:FindFirstChild("Humanoid")
+            local rootPart = enemy:FindFirstChild("HumanoidRootPart")
+
+            if humanoid and humanoid.Health > 0 and rootPart then
+                pcall(function()
+                    -- Gửi TrailEffect 1 lần mỗi Enemy
+                    TrailRemote:FireServer(false, false, ToolHandle)
+
+                    -- Gửi MeleeHit 3 lần liên tiếp
+                    for i = 50, 50 do
+                        MeleeRemote:InvokeServer(
+                            Character,
+                            "SLASH",
+                            rootPart.CFrame,
+                            WeaponName
+                        )
+                    end
+                end)
+            end
+        end
+    end
+end)
