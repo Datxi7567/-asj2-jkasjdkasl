@@ -1,0 +1,19 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+local localPlayer = Players.LocalPlayer
+local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+
+local targetPlayer = Players:FindFirstChild("Muz1gi")
+
+if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+	local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+	
+	local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(root, tweenInfo, {Position = targetRoot.Position})
+
+	tween:Play()
+else
+	warn("Không tìm thấy người chơi 'Muz1gi' hoặc nhân vật chưa load xong.")
+end
