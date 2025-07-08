@@ -1,19 +1,39 @@
-local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
-local localPlayer = Players.LocalPlayer
-local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
 
-local targetPlayer = Players:FindFirstChild("Muz1gi")
+-- Cấu hình
+local radius = 200         -- Bán kính hình tròn
+local height = 100         -- Độ cao
+local speed = 10           -- Thời gian hoàn thành 1 vòng (giây)
+local center = root.Position -- Tâm quay bắt đầu tại vị trí hiện tại
 
-if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-	local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-	
-	local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-	local tween = TweenService:Create(root, tweenInfo, {Position = targetRoot.Position})
-
-	tween:Play()
-else
-	warn("Không tìm thấy người chơi 'Muz1gi' hoặc nhân vật chưa load xong.")
+-- Đảm bảo nhân vật không bị va chạm khi bay
+for _, part in pairs(character:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.CanCollide = false
+    end
 end
+
+-- Tạo vòng lặp di chuyển theo hình tròn
+task.spawn(function()
+    local angle = 0
+    while true do
+        angle = angle + math.rad(5) -- Tăng góc mỗi bước
+        local x = center.X + math.cos(angle) * radius
+        local z = center.Z + math.sin(angle) * radius
+        local targetPosition = Vector3.new(x, height, z)
+
+        local tween = TweenService:Create(
+            root,
+            TweenInfo.new(0.05, Enum.EasingStyle.Linear),
+            {CFrame = CFrame.new(targetPosition)}
+        )
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end)
