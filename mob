@@ -7,9 +7,9 @@ local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
 
 -- Cấu hình
-local radius = 200         -- Bán kính hình tròn
-local height = 100         -- Độ cao
-local speed = 10           -- Thời gian hoàn thành 1 vòng (giây)
+local radius = 500         -- Bán kính hình tròn
+local height = 200         -- Độ cao
+local speed = 20           -- Thời gian hoàn thành 1 vòng (giây)
 local center = root.Position -- Tâm quay bắt đầu tại vị trí hiện tại
 
 -- Đảm bảo nhân vật không bị va chạm khi bay
