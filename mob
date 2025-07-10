@@ -23,7 +23,7 @@ end
 task.spawn(function()
     local angle = 0
     while true do
-        angle = angle + math.rad(5) -- Tăng góc mỗi bước
+        angle = angle + math.rad(200) -- Tăng góc mỗi bước
         local x = center.X + math.cos(angle) * radius
         local z = center.Z + math.sin(angle) * radius
         local targetPosition = Vector3.new(x, height, z)
