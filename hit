@@ -1,43 +1,44 @@
-_G.Kill_Aura = true
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Enemies = workspace:WaitForChild("Enemies")
 
-local player = Players.LocalPlayer
-local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("MeleeHitTarget")
+local WeaponName = "SW-2_LastHope"
+local MeleeRemote = ReplicatedStorage.Remotes.MeleeHitTarget
+local TrailRemote = ReplicatedStorage.Remotes.TrailEffect
 
-local attackType = "SLASH"
-local weaponName = "SW-2_LastHope"
-local attackInterval = 0.2 -- Mỗi 0.2s thực hiện 1 đợt tấn công toàn bộ
+-- Trang bị vũ khí 1 lần
+pcall(function()
+    ReplicatedStorage.Remotes:WaitForChild("LN"):WaitForChild("ToolEquip"):FireServer(WeaponName, "Sub")
+end)
 
-task.spawn(function()
-    while _G.Kill_Aura do
-        local character = player.Character
-        if not character then continue end
+-- Lấy Handle
+local ToolHandle = Character:WaitForChild(WeaponName):WaitForChild("ToolModel"):WaitForChild("Handle")
 
-        local enemiesFolder = workspace:FindFirstChild("Enemies")
-        if not enemiesFolder then continue end
-
-        for _, enemy in pairs(enemiesFolder:GetChildren()) do
-            local hrp = enemy:FindFirstChild("HumanoidRootPart")
+-- Tấn công toàn bộ Enemies nhiều lần mỗi vòng
+spawn(function()
+    while task.wait(0.1) do
+        for _, enemy in ipairs(Enemies:GetChildren()) do
             local humanoid = enemy:FindFirstChild("Humanoid")
+            local rootPart = enemy:FindFirstChild("HumanoidRootPart")
 
-            if hrp and humanoid and humanoid.Health > 0 then
-                task.spawn(function()
-                    local args = {
-                        character,
-                        attackType,
-                        hrp.CFrame,
-                        weaponName
-                    }
+            if humanoid and humanoid.Health > 0 and rootPart then
+                pcall(function()
+                    -- Gửi TrailEffect 1 lần mỗi Enemy
+                    TrailRemote:FireServer(false, false, ToolHandle)
 
-                    pcall(function()
-                        remote:InvokeServer(unpack(args))
-                    end)
+                    -- Gửi MeleeHit 3 lần liên tiếp
+                    for i = 40, 40 do
+                        MeleeRemote:InvokeServer(
+                            Character,
+                            "SLASH",
+                            rootPart.CFrame,
+                            WeaponName
+                        )
+                    end
                 end)
             end
         end
-
-        task.wait(attackInterval)
     end
 end)
