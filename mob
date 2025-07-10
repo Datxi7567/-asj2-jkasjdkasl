@@ -1,39 +1,44 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
 
 -- Cấu hình
-local radius = 500         -- Bán kính hình tròn
-local height = 200         -- Độ cao
-local speed = 100           -- Thời gian hoàn thành 1 vòng (giây)
-local center = root.Position -- Tâm quay bắt đầu tại vị trí hiện tại
+local radius = 300
+local height = 150
+local fullRotationTime = 10 -- Thời gian hoàn thành 1 vòng (giây)
+local center = root.Position
 
--- Đảm bảo nhân vật không bị va chạm khi bay
+-- Tắt va chạm
 for _, part in pairs(character:GetDescendants()) do
     if part:IsA("BasePart") then
         part.CanCollide = false
     end
 end
 
--- Tạo vòng lặp di chuyển theo hình tròn
+-- Tính số bước và thời gian mỗi bước
+local steps = 50
+local angleStep = 2 * math.pi / steps
+local timePerStep = fullRotationTime / steps
+
+-- Vòng lặp Tween
 task.spawn(function()
     local angle = 0
     while true do
-        angle = angle + math.rad(200) -- Tăng góc mỗi bước
         local x = center.X + math.cos(angle) * radius
         local z = center.Z + math.sin(angle) * radius
         local targetPosition = Vector3.new(x, height, z)
 
         local tween = TweenService:Create(
             root,
-            TweenInfo.new(0.05, Enum.EasingStyle.Linear),
+            TweenInfo.new(timePerStep, Enum.EasingStyle.Linear),
             {CFrame = CFrame.new(targetPosition)}
         )
         tween:Play()
         tween.Completed:Wait()
+
+        angle = angle + angleStep
     end
 end)
