@@ -7,7 +7,7 @@ local root = character:WaitForChild("HumanoidRootPart")
 
 -- Cấu hình
 local radius = 300
-local height = 150
+local height = 300
 local fullRotationTime = 10 -- Thời gian hoàn thành 1 vòng (giây)
 local center = root.Position
 
