@@ -1,0 +1,50 @@
+local Config = {
+    Configuration = {
+        FpsBoost = true,
+    }
+}
+
+if Config.Configuration.FpsBoost then
+    print("[Optimizer] FPS Boost Mode Activated!")
+
+    local lighting = game:GetService("Lighting")
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 1e9
+    lighting.Brightness = 1
+    lighting.EnvironmentDiffuseScale = 0
+    lighting.EnvironmentSpecularScale = 0
+    lighting.ShadowSoftness = 0
+
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+    for _, v in ipairs(game:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+            v.CastShadow = false
+            v.Transparency = 1 -- 🔹 Ẩn Part, không xóa
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") then
+            v.Enabled = false
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 0
+            v.BlastRadius = 0
+        elseif v:IsA("Beam") then
+            v.Enabled = false
+        end
+    end
+
+    for _, sky in ipairs(lighting:GetChildren()) do
+        if sky:IsA("Sky") then
+            sky.Parent = nil
+        end
+    end
+
+    local camera = workspace:FindFirstChildOfClass("Camera")
+    if camera then
+        camera.FieldOfView = 70
+    end
+
+    print("[Optimizer] All Parts hidden and resources reduced.")
+end
